@@ -2,6 +2,7 @@ from marshmallow import fields, validate
 from app.extensions import ma
 from app.models import ServiceTickets
 from app.blueprints.mechanics.schemas import MechanicSchema  
+
 class ServiceTicketsSchema(ma.SQLAlchemyAutoSchema):
     # explicit fields
     id = ma.auto_field(dump_only=True)
@@ -22,6 +23,15 @@ class ServiceTicketsSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
         # limit output fields (adjust as needed)
         fields = ("id", "date", "customer_id", "service_descr", "mechanics")
+class EditTicketSchema(ma.Schema):
+    add_mechanic_ids = fields.List(fields.Int,required=True)
+    remove_mechanic_ids = fields.List(fields.Int,required=True)
+    fields = ("add_mechanic_ids","remove_mechanic_ids")
+
+
+
 
 service_ticket_schema = ServiceTicketsSchema()
 service_tickets_schema = ServiceTicketsSchema(many=True)
+return_ticket_schema = ServiceTicketsSchema(exclude=['customer_id'])
+edit_ticket_schema = EditTicketSchema()   

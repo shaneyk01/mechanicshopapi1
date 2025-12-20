@@ -2,11 +2,32 @@ from flask import Flask,jsonify,request
 from marshmallow import ValidationError 
 from sqlalchemy import select
 from . import customers_bp
-from .schemas import customer_schema, customers_schema
-from app.models import Customer, db
+from .schemas import customer_schema, customers_schema, login_schema
+from app.models import Customer, ServiceTickets, db
+from app.extensions import limiter
+from app.utils.auth import encode_token, customer_token_required
+from app.blueprints.serviceTickets.schemas import service_tickets_schema
+
+
+@customers_bp.route('/login', methods=['POST'])
+@limiter.limit("10 per minute")
+def login():
+    try:
+        creds = login_schema.load(request.json)
+    except ValidationError as e:
+        return jsonify(e.messages), 400
+    query = select(Customer).where(Customer.email == creds['email'])
+    customer = db.session.execute(query).scalars().first()
+
+    if customer and customer.password == creds['password']:
+        token = encode_token(customer.id, role='customer')
+        return jsonify({'token': token}), 200
+    else:
+        return jsonify({'message': 'Invalid email or password'}), 401
 
 
 @customers_bp.route('/', methods=['POST'])
+@limiter.limit("10 per minute")
 def create_customer():
     try:
         customer_data = customer_schema.load(request.json)
@@ -37,6 +58,8 @@ def get_a_customer(customer_id):
     else:
          return jsonify({'message':'Customer not found'}),404
 
+
+
 @customers_bp.route('/<int:customer_id>', methods=['PUT'])
 def update_customer(customer_id):
     customer = db.session.get(Customer, customer_id)
@@ -60,3 +83,16 @@ def delete_customer(customer_id):
     db.session.delete(customer)
     db.session.commit()
     return jsonify({'message': f'Customer id:{customer_id}, was deleted successfully'}), 200
+
+
+@customers_bp.route('/<int:customer_id>/service_tickets', methods=['GET'])
+@customer_token_required
+def get_customer_service_tickets(customer_id):
+    customer = db.session.get(Customer, customer_id)
+    if not customer:
+        return jsonify({'message': 'Customer not found'}), 404
+
+    tickets = db.session.execute(
+        select(ServiceTickets).where(ServiceTickets.customer_id == customer_id)
+    ).scalars().all()
+    return jsonify(service_tickets_schema.dump(tickets)), 200
