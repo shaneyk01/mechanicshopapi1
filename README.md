@@ -47,6 +47,7 @@ When you push code to these branches, GitHub Actions will:
 3. Create a virtual environment
 4. Install dependencies from `requirements.txt`
 5. Run debugging information
+6. Run all tests using unittest
 
 #### View Workflow Runs
 1. Go to your repository on GitHub
@@ -57,10 +58,10 @@ When you push code to these branches, GitHub Actions will:
 #### Manual Workflow Trigger
 To manually trigger a workflow:
 1. Go to the **Actions** tab on GitHub
-2. Select the workflow you want to run
-3. Click **Run workflow** button (if `workflow_dispatch` is enabled)
-
-Note: Current workflows only run automatically on push events. To enable manual triggers, add `workflow_dispatch:` to the `on:` section of the workflow file.
+2. Select the "Flask CI" workflow
+3. Click **Run workflow** button
+4. Select the branch you want to run the workflow on
+5. Click **Run workflow** to start the workflow
 
 ### Running Tests Locally
 To simulate the workflow behavior locally:
