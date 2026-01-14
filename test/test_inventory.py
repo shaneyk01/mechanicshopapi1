@@ -18,6 +18,7 @@ class TestInventory(unittest.TestCase):
 
     def tearDown(self):
         db.session.remove()
+        db.drop_all()
         self.app_context.pop()
 
     def test_create_inventory_item(self):

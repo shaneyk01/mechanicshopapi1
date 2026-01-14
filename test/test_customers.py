@@ -20,6 +20,8 @@ class TestCustomer(unittest.TestCase):
         
 
     def tearDown(self):
+        db.session.remove()
+        db.drop_all()
         self.app_context.pop()
 
     def test_create_customer(self):
