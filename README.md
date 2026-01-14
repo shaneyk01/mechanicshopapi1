@@ -32,6 +32,59 @@ Example config (config/DevelopmentConfig):
 python main.py
 ```
 
+## Running Workflows
+
+### GitHub Actions Workflows
+This repository includes GitHub Actions workflows for continuous integration (CI). The workflows are defined in `.github/workflows/`.
+
+#### Automatic Workflow Execution
+Workflows automatically run on:
+- **Push events** to `main` or `master` branches
+
+When you push code to these branches, GitHub Actions will:
+1. Checkout the code
+2. Set up Python 3.12
+3. Create a virtual environment
+4. Install dependencies from `requirements.txt`
+5. Run debugging information
+
+#### View Workflow Runs
+1. Go to your repository on GitHub
+2. Click on the **Actions** tab
+3. View the status of recent workflow runs
+4. Click on any run to see detailed logs
+
+#### Manual Workflow Trigger
+To manually trigger a workflow:
+1. Go to the **Actions** tab on GitHub
+2. Select the workflow you want to run
+3. Click **Run workflow** button (if `workflow_dispatch` is enabled)
+
+Note: Current workflows only run automatically on push events. To enable manual triggers, add `workflow_dispatch:` to the `on:` section of the workflow file.
+
+### Running Tests Locally
+To simulate the workflow behavior locally:
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On Linux/Mac:
+source venv/bin/activate
+# On Windows PowerShell:
+& venv/Scripts/Activate.ps1
+# On Windows CMD:
+venv\Scripts\activate.bat
+
+# Install dependencies
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+# Run tests
+python -m unittest discover -s test -p "test_*.py"
+```
+
 ## Database Reset (DEV ONLY)
 ```
 python scripts/reset_db.py
