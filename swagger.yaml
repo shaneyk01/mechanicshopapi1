@@ -1,0 +1,675 @@
+openapi: 3.0.0
+info:
+  title: Mechanic Shop API
+  version: 1.0.0
+  description: |
+    REST API for managing customers, mechanics, inventory, and service tickets.
+servers:
+  - url: http://127.0.0.1:5000
+    description: Local development server
+
+tags:
+  - name: Customers
+  - name: Mechanics
+  - name: Inventory
+  - name: ServiceTickets
+
+paths:
+  /customers/login:
+    post:
+      tags: [Customers]
+      summary: Customer login
+      operationId: customerLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerLogin'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid email or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /customers/:
+    get:
+      tags: [Customers]
+      summary: List customers
+      operationId: listCustomers
+      responses:
+        '200':
+          description: List of customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+    post:
+      tags: [Customers]
+      summary: Create a customer
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Validation error or duplicate email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /customers/{customer_id}:
+    parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: Customer ID
+    get:
+      tags: [Customers]
+      summary: Get a customer by ID
+      operationId: getCustomer
+      responses:
+        '200':
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags: [Customers]
+      summary: Update a customer
+      operationId: updateCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUpdate'
+      responses:
+        '200':
+          description: Customer updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [Customers]
+      summary: Delete a customer
+      operationId: deleteCustomer
+      responses:
+        '200':
+          description: Customer deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /customers/{customer_id}/service_tickets:
+    get:
+      tags: [Customers, ServiceTickets]
+      summary: Get service tickets for a customer
+      description: Requires a valid customer JWT in the Authorization header.
+      operationId: getCustomerServiceTickets
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: customer_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Customer ID
+      responses:
+        '200':
+          description: List of service tickets for the customer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceTicket'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Customer access required or forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /mechanics/:
+    get:
+      tags: [Mechanics]
+      summary: List mechanics
+      operationId: listMechanics
+      responses:
+        '200':
+          description: List of mechanics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mechanic'
+    post:
+      tags: [Mechanics]
+      summary: Create a mechanic
+      operationId: createMechanic
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MechanicCreate'
+      responses:
+        '201':
+          description: Mechanic created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mechanic'
+        '400':
+          description: Validation error or duplicate email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /mechanics/{mechanic_id}:
+    parameters:
+      - name: mechanic_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: Mechanic ID
+    put:
+      tags: [Mechanics]
+      summary: Update a mechanic
+      operationId: updateMechanic
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MechanicUpdate'
+      responses:
+        '200':
+          description: Mechanic updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mechanic'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Mechanic not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [Mechanics]
+      summary: Delete a mechanic
+      operationId: deleteMechanic
+      responses:
+        '200':
+          description: Mechanic deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Mechanic not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /inventory/:
+    get:
+      tags: [Inventory]
+      summary: List inventory items
+      operationId: listInventory
+      responses:
+        '200':
+          description: List of inventory items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryItem'
+    post:
+      tags: [Inventory]
+      summary: Create an inventory item
+      operationId: createInventoryItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItemCreate'
+      responses:
+        '201':
+          description: Inventory item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItem'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /inventory/{inventory_id}:
+    parameters:
+      - name: inventory_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: Inventory item ID
+    put:
+      tags: [Inventory]
+      summary: Update an inventory item
+      operationId: updateInventoryItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItemUpdate'
+      responses:
+        '200':
+          description: Inventory item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItem'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Inventory item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [Inventory]
+      summary: Delete an inventory item
+      operationId: deleteInventoryItem
+      responses:
+        '200':
+          description: Inventory item deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Inventory item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /service_tickets/:
+    get:
+      tags: [ServiceTickets]
+      summary: List service tickets
+      operationId: listServiceTickets
+      responses:
+        '200':
+          description: List of service tickets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceTicket'
+    post:
+      tags: [ServiceTickets]
+      summary: Create a service ticket
+      operationId: createServiceTicket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceTicketCreate'
+      responses:
+        '201':
+          description: Service ticket created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceTicket'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /service_tickets/{service_ticket_id}:
+    parameters:
+      - name: service_ticket_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: Service ticket ID
+    put:
+      tags: [ServiceTickets]
+      summary: Edit a service ticket's mechanics
+      description: Add or remove mechanics from a service ticket.
+      operationId: editServiceTicket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditTicket'
+      responses:
+        '200':
+          description: Service ticket updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceTicket'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Service ticket not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [ServiceTickets]
+      summary: Delete a service ticket
+      operationId: deleteServiceTicket
+      responses:
+        '200':
+          description: Service ticket deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Service ticket not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+      required: [name, email, password]
+
+    CustomerCreate:
+      allOf:
+        - $ref: '#/components/schemas/Customer'
+      required: [name, email, password]
+
+    CustomerUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        password:
+          type: string
+
+    CustomerLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    Mechanic:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        salary:
+          type: number
+          format: float
+        password:
+          type: string
+          writeOnly: true
+      required: [name, email, salary, password]
+
+    MechanicCreate:
+      allOf:
+        - $ref: '#/components/schemas/Mechanic'
+      required: [name, email, salary, password]
+
+    MechanicUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        salary:
+          type: number
+          format: float
+        password:
+          type: string
+
+    MechanicSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        price:
+          type: number
+          format: float
+      required: [name, price]
+
+    InventoryItemCreate:
+      allOf:
+        - $ref: '#/components/schemas/InventoryItem'
+      required: [name, price]
+
+    InventoryItemUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+          format: float
+
+    ServiceTicket:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        date:
+          type: string
+          format: date
+        customer_id:
+          type: integer
+        service_descr:
+          type: string
+        mechanics:
+          type: array
+          items:
+            $ref: '#/components/schemas/MechanicSummary'
+      required: [date, customer_id, service_descr]
+
+    ServiceTicketCreate:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        customer_id:
+          type: integer
+        service_descr:
+          type: string
+      required: [date, customer_id, service_descr]
+
+    EditTicket:
+      type: object
+      properties:
+        add_mechanic_ids:
+          type: array
+          items:
+            type: integer
+        remove_mechanic_ids:
+          type: array
+          items:
+            type: integer
+      required: [add_mechanic_ids, remove_mechanic_ids]
+
+    TokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
