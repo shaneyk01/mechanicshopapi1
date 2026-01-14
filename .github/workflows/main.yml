@@ -11,17 +11,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.12 
-
-      - name: Create virtual environment
-        run: |
-          python -m venv venv
-          source venv/bin/activate
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
@@ -32,8 +27,8 @@ jobs:
         run: |
           echo "Python Version: $(python --version)"
           echo "Working Directory: $(pwd)"
-          echo "Contents of Working Directory: $(ls -l)"
-          echo "Contents of site-packages: $(ls -l venv/lib/python*/site-packages)"
+          echo "Installed packages:"
+          pip list
 
       - name: Run tests
         run: |

@@ -44,10 +44,9 @@ Workflows automatically run on:
 When you push code to these branches, GitHub Actions will:
 1. Checkout the code
 2. Set up Python 3.12
-3. Create a virtual environment
-4. Install dependencies from `requirements.txt`
-5. Run debugging information
-6. Run all tests using unittest
+3. Install dependencies from `requirements.txt`
+4. Print debugging information
+5. Run all tests using unittest
 
 #### View Workflow Runs
 1. Go to your repository on GitHub
