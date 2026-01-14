@@ -2,6 +2,9 @@
 
 Simple Flask REST API to manage customers, mechanics, and service tickets (with many-to-many assignment of mechanics to tickets).
 
+## CI/CD
+This repository uses GitHub Actions for continuous integration. See [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) for instructions on how to run workflows.
+
 ## Features
 - Customers CRUD
 - Mechanics CRUD
